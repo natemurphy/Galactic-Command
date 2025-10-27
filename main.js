@@ -43,13 +43,30 @@ function generateMap() {
         });
     }
 
-    // Starter ship (frigate)
+    // Starter ship (frigate) safe spawn
+    let frigateX = 3;
+    let frigateY = 3;
+    if (stationTile) {
+        // try to place frigate below station if empty
+        if (!isOccupied(stationTile.x, stationTile.y + 1)) {
+            frigateX = stationTile.x;
+            frigateY = stationTile.y + 1;
+        } else {
+            // fallback: any nearby free tile
+            const fallback = findEmptyAdjacentTile(earth.x, earth.y);
+            if (fallback) {
+                frigateX = fallback.x;
+                frigateY = fallback.y;
+            }
+        }
+    }
+
     objects.push({
         id: 3,
         type: 'frigate',
         owner: 'player',
-        x: stationTile ? stationTile.x : 3,
-        y: stationTile ? stationTile.y + 1 : 3,
+        x: frigateX,
+        y: frigateY,
         hasMoved: false,
         stats: {
             moveRange: 1,
