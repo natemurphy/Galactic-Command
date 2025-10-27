@@ -1,6 +1,5 @@
 import { initGameState } from "./gameState.js";
-import { generateMap, renderMap } from "./mapRenderer.js";
-import { loadGameState, saveGameState } from "./saveLoad.js";
+import { generateMap, renderMap, toggleFog } from "./mapRenderer.js";
 
 document.addEventListener("DOMContentLoaded", () => {
     let gameState;
@@ -15,6 +14,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const settingsBack = document.getElementById("settings-back");
     const musicToggle = document.getElementById("music-toggle");
     const musicVolume = document.getElementById("music-volume");
+
+    // Toolbar
+    const toggleFogBtn = document.getElementById("toggle-fog");
 
     // Background music
     let bgMusic = new Audio("assets/background_music.mp3");
@@ -68,11 +70,17 @@ document.addEventListener("DOMContentLoaded", () => {
         bgMusic.volume = musicVolume.value / 100;
     });
 
+    // Toolbar buttons
+    toggleFogBtn.addEventListener("click", () => {
+        toggleFog(gameState);
+        renderMap(gameState);
+    });
+
     // Start the game
     function startGame() {
         splashScreen.style.display = "none";
         settingsScreen.style.display = "none";
         gameContainer.style.display = "flex";
-        renderMap(gameState); // draws procedural map (or placeholder)
+        renderMap(gameState); // draws procedural map
     }
 });
