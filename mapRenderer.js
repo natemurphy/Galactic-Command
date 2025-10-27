@@ -1,4 +1,4 @@
-const TILE_SIZE = 12; // smaller for viewport
+const TILE_SIZE = 16;
 let fogHidden = false;
 
 const ICONS = {
@@ -7,6 +7,7 @@ const ICONS = {
     planet: "🪐",
     asteroid: "⛰️",
     enemy: "⚔️",
+    empty: "·",
     unexplored: "⬛"
 };
 
@@ -21,6 +22,7 @@ export function generateMap(gameState) {
             if (rand < 0.02) map[y][x].object = "enemy";
             else if (rand < 0.05) map[y][x].object = "planet";
             else if (rand < 0.1) map[y][x].object = "asteroid";
+            else map[y][x].object = "empty";
         }
     }
 }
@@ -48,7 +50,7 @@ export function renderMap(gameState) {
             let icon;
 
             if (fogHidden || tile.explored) {
-                icon = ICONS[tile.object] || "⬜";
+                icon = ICONS[tile.object] || ICONS.empty;
             } else {
                 icon = ICONS.unexplored;
             }
