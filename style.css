@@ -3,9 +3,10 @@ body {
     font-family: monospace;
     background-color: black;
     color: white;
+    overflow: hidden; /* prevent scrollbars */
 }
 
-/* Splash and settings screens remain centered */
+/* Centered splash/settings */
 .screen {
     width: 100vw;
     height: 100vh;
@@ -15,32 +16,47 @@ body {
     justify-content: center;
 }
 
-/* Toolbar pinned to top */
-#toolbar {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    background-color: #111;
-    padding: 8px;
-    display: flex;
-    gap: 10px;
-    align-items: center;
-    z-index: 1000; /* above everything else */
-}
-
-/* Game container layout */
+/* Game layout: three columns */
 #game-container {
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-columns: 200px 1fr 200px;
+    grid-template-rows: 100vh;
     width: 100vw;
     height: 100vh;
-    overflow: auto; /* scroll for large canvas */
-    padding-top: 40px; /* leave space for toolbar */
 }
 
-/* Canvas styling */
+/* Left toolbar */
+#left-bar {
+    background-color: #111;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    border-right: 2px solid red;
+}
+
+/* Right stats */
+#right-bar {
+    background-color: #111;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    border-left: 2px solid red;
+}
+
+/* Map area centered */
+#map-area {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Canvas */
 #game-canvas {
+    background-color: black;
+    border: 2px solid red;
     display: block;
-    border: 2px solid red; /* temporary for visibility */
 }
