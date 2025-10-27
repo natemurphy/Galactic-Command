@@ -3,10 +3,10 @@ body {
     font-family: monospace;
     background-color: black;
     color: white;
-    overflow: hidden; /* no scrollbars */
+    overflow: hidden;
 }
 
-/* Splash/settings screens stay centered */
+/* Shared screen base */
 .screen {
     width: 100vw;
     height: 100vh;
@@ -16,12 +16,26 @@ body {
     justify-content: center;
 }
 
-/* Game layout — 3-column grid */
+/* Game container split vertically: top blank space + main content row */
 #game-container {
-    display: grid;
-    grid-template-columns: 220px 1fr 220px;
+    display: flex;
+    flex-direction: column;
     width: 100vw;
     height: 100vh;
+}
+
+/* Top blank padding area */
+#top-space {
+    height: 60px; /* blank space above the map */
+}
+
+/* Main content (map + sidebars) */
+#content-row {
+    display: grid;
+    grid-template-columns: 200px 1fr 200px;
+    flex: 1;
+    width: 100%;
+    height: calc(100vh - 60px);
 }
 
 /* Left toolbar */
@@ -30,39 +44,37 @@ body {
     padding: 10px;
     display: flex;
     flex-direction: column;
-    justify-content: center; /* center vertically */
+    justify-content: center;
     align-items: flex-start;
     gap: 12px;
     border-right: 2px solid red;
 }
 
-/* Right stats/resources */
+/* Right stats */
 #right-bar {
     background-color: #111;
     padding: 10px;
     display: flex;
     flex-direction: column;
-    justify-content: center; /* center vertically */
+    justify-content: center;
     align-items: flex-start;
     gap: 12px;
     border-left: 2px solid red;
 }
 
-/* Map area centered horizontally and vertically */
+/* Map area centered */
 #map-area {
     display: flex;
     align-items: center;
     justify-content: center;
-    overflow: hidden;
 }
 
-/* Canvas fits view height, padded slightly to avoid scrollbars */
+/* Canvas fits within height and is centered */
 #game-canvas {
     background-color: black;
     display: block;
-    margin-top: 10px;
-    margin-bottom: 10px;
     border: 2px solid red;
-    max-height: calc(100vh - 20px);
+    margin: 0;
+    max-height: calc(100vh - 80px);
     max-width: 100%;
 }
