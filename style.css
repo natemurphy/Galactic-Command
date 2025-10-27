@@ -30,7 +30,7 @@ body {
     padding: 10px;
     display: flex;
     flex-direction: column;
-    justify-content: center; /* center vertically */
+    justify-content: flex-start;
     align-items: flex-start;
     gap: 12px;
     border-right: 2px solid red;
@@ -42,7 +42,7 @@ body {
     padding: 10px;
     display: flex;
     flex-direction: column;
-    justify-content: center; /* center vertically */
+    justify-content: flex-start;
     align-items: flex-start;
     gap: 12px;
     border-left: 2px solid red;
@@ -60,8 +60,6 @@ body {
 #game-canvas {
     background-color: black;
     display: block;
-    margin-top: 10px;
-    margin-bottom: 10px;
     border: 2px solid red;
     max-height: calc(100vh - 20px);
     max-width: 100%;
