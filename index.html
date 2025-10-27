@@ -37,14 +37,23 @@
         <button id="settings-back">Back</button>
     </div>
 
-    <!-- Game Container -->
+    <!-- Game Layout -->
     <div id="game-container" class="screen" style="display:none">
-        <!-- Toolbar pinned to top -->
-        <div id="toolbar">
-            <button id="toggle-fog">Toggle Fog of War</button>
+        <div id="left-bar">
+            <h3>Controls</h3>
+            <button id="toggle-fog">Toggle Fog</button>
         </div>
 
-        <canvas id="game-canvas"></canvas>
+        <div id="map-area">
+            <canvas id="game-canvas"></canvas>
+        </div>
+
+        <div id="right-bar">
+            <h3>Resources</h3>
+            <p>Metal: <span id="metal-count">0</span></p>
+            <p>Energy: <span id="energy-count">0</span></p>
+            <p>Population: <span id="population-count">0</span></p>
+        </div>
     </div>
 
     <script type="module" src="main.js"></script>
