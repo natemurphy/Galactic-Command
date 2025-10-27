@@ -1,6 +1,3 @@
-const TILE_SIZE = 16;
-let fogHidden = false;
-
 const ICONS = {
     playerBase: "🏰",
     playerShip: "🚀",
@@ -11,11 +8,13 @@ const ICONS = {
     unexplored: "⬛"
 };
 
-export function generateMap(gameState) {
-    const { map, size } = gameState;
+let fogHidden = false;
 
-    for (let y = 0; y < size; y++) {
-        for (let x = 0; x < size; x++) {
+export function generateMap(gameState) {
+    const { map, width, height } = gameState;
+
+    for (let y = 0; y < height; y++) {
+        for (let x = 0; x < width; x++) {
             if (map[y][x].object) continue;
 
             const rand = Math.random();
@@ -33,19 +32,20 @@ export function toggleFog(gameState) {
 
 export function renderMap(gameState) {
     const canvas = document.getElementById("game-canvas");
-    const { map, size } = gameState;
+    const { map, width, height } = gameState;
+    const TILE_SIZE = Math.floor(window.innerHeight / height); // fit vertically
 
-    canvas.width = TILE_SIZE * size;
-    canvas.height = TILE_SIZE * size;
+    canvas.width = TILE_SIZE * width;
+    canvas.height = TILE_SIZE * height;
 
     const ctx = canvas.getContext("2d");
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.font = `${TILE_SIZE}px monospace`;
+    ctx.font = `${TILE_SIZE * 0.9}px monospace`;
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
 
-    for (let y = 0; y < size; y++) {
-        for (let x = 0; x < size; x++) {
+    for (let y = 0; y < height; y++) {
+        for (let x = 0; x < width; x++) {
             const tile = map[y][x];
             let icon;
 
