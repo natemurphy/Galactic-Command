@@ -9,31 +9,26 @@ document.addEventListener("DOMContentLoaded", () => {
     const settingsScreen = document.getElementById("settings-screen");
     const fileInput = document.getElementById("file-input");
 
-    // Settings elements
     const settingsBtn = document.getElementById("settings-btn");
     const settingsBack = document.getElementById("settings-back");
     const musicToggle = document.getElementById("music-toggle");
     const musicVolume = document.getElementById("music-volume");
 
-    // Toolbar
     const toggleFogBtn = document.getElementById("toggle-fog");
 
-    // Background music (skip audio for now)
-    let bgMusic = new Audio();
+    const bgMusic = new Audio();
     bgMusic.loop = true;
     bgMusic.volume = 0.5;
 
-    // New Game
+    // Start new game
     document.getElementById("new-game").addEventListener("click", () => {
         gameState = initGameState();
         generateMap(gameState);
         startGame();
-
-        // Play music only after user interaction
         if (musicToggle.checked) bgMusic.play().catch(() => {});
     });
 
-    // Continue Game
+    // Load game
     document.getElementById("load-game").addEventListener("click", () => {
         fileInput.click();
     });
@@ -51,19 +46,18 @@ document.addEventListener("DOMContentLoaded", () => {
         reader.readAsText(file);
     });
 
-    // Settings button
+    // Settings navigation
     settingsBtn.addEventListener("click", () => {
         splashScreen.style.display = "none";
         settingsScreen.style.display = "flex";
     });
 
-    // Back button from settings
     settingsBack.addEventListener("click", () => {
         settingsScreen.style.display = "none";
         splashScreen.style.display = "flex";
     });
 
-    // Music controls
+    // Music control
     musicToggle.addEventListener("change", () => {
         if (musicToggle.checked) bgMusic.play().catch(() => {});
         else bgMusic.pause();
@@ -73,7 +67,7 @@ document.addEventListener("DOMContentLoaded", () => {
         bgMusic.volume = musicVolume.value / 100;
     });
 
-    // Toolbar buttons
+    // Fog toggle
     toggleFogBtn.addEventListener("click", () => {
         toggleFog(gameState);
         renderMap(gameState);
@@ -82,7 +76,7 @@ document.addEventListener("DOMContentLoaded", () => {
     function startGame() {
         splashScreen.style.display = "none";
         settingsScreen.style.display = "none";
-        gameContainer.style.display = "flex";
+        gameContainer.style.display = "grid";
         renderMap(gameState);
     }
 });
