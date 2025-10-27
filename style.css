@@ -32,3 +32,16 @@ button {
 input[type="range"] {
     width: 150px;
 }
+
+#game-container {
+    display: flex;
+    flex-direction: column;
+    width: 100vw;
+    height: 100vh;
+    overflow: auto; /* allow scrolling for large canvas */
+}
+
+#game-canvas {
+    display: block;
+    border: 2px solid red; /* temporary border for visibility */
+}
