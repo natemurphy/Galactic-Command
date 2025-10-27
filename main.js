@@ -14,6 +14,7 @@ let map = [];
 let objects = [];
 let selectedObject = null;
 let currentTurn = 'player'; // player or enemy
+let fogEnabled = true;
 
 // ======= Generate Map ======= //
 function generateMap() {
@@ -21,7 +22,7 @@ function generateMap() {
     for (let y = 0; y < rows; y++) {
         let row = [];
         for (let x = 0; x < cols; x++) {
-            row.push({ visible: true }); // fog placeholder
+            row.push({ visible: !fogEnabled }); // fog placeholder
         }
         map.push(row);
     }
@@ -47,12 +48,10 @@ function generateMap() {
     let frigateX = 3;
     let frigateY = 3;
     if (stationTile) {
-        // try to place frigate below station if empty
         if (!isOccupied(stationTile.x, stationTile.y + 1)) {
             frigateX = stationTile.x;
             frigateY = stationTile.y + 1;
         } else {
-            // fallback: any nearby free tile
             const fallback = findEmptyAdjacentTile(earth.x, earth.y);
             if (fallback) {
                 frigateX = fallback.x;
@@ -182,7 +181,6 @@ canvas.addEventListener("click", e => {
     const clicked = getObjectAtTile(x, y);
 
     if (selectedObject && !clicked) {
-        // try to move
         const dx = Math.abs(x - selectedObject.x);
         const dy = Math.abs(y - selectedObject.y);
         if (dx <= selectedObject.stats.moveRange && dy <= selectedObject.stats.moveRange && !isOccupied(x, y)) {
@@ -197,6 +195,12 @@ canvas.addEventListener("click", e => {
         selectedObject = null;
     }
 
+    draw();
+});
+
+// ======= Fog Toggle ======= //
+document.getElementById("toggle-fog").addEventListener("click", () => {
+    fogEnabled = !fogEnabled;
     draw();
 });
 
