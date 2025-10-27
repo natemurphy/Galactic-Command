@@ -1,10 +1,11 @@
 body {
     margin: 0;
-    font-family: sans-serif;
+    font-family: monospace;
     background-color: black;
     color: white;
 }
 
+/* Splash and settings screens remain centered */
 .screen {
     width: 100vw;
     height: 100vh;
@@ -14,34 +15,32 @@ body {
     justify-content: center;
 }
 
+/* Toolbar pinned to top */
 #toolbar {
+    position: fixed;
+    top: 0;
+    left: 0;
     width: 100%;
     background-color: #111;
     padding: 8px;
     display: flex;
     gap: 10px;
     align-items: center;
+    z-index: 1000; /* above everything else */
 }
 
-button {
-    padding: 6px 12px;
-    font-size: 16px;
-    cursor: pointer;
-}
-
-input[type="range"] {
-    width: 150px;
-}
-
+/* Game container layout */
 #game-container {
     display: flex;
     flex-direction: column;
     width: 100vw;
     height: 100vh;
-    overflow: auto; /* allow scrolling for large canvas */
+    overflow: auto; /* scroll for large canvas */
+    padding-top: 40px; /* leave space for toolbar */
 }
 
+/* Canvas styling */
 #game-canvas {
     display: block;
-    border: 2px solid red; /* temporary border for visibility */
+    border: 2px solid red; /* temporary for visibility */
 }
