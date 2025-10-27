@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Galactic Command</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Splash Screen -->
+    <div id="splash-screen" class="screen">
+        <h1>Galactic Command</h1>
+        <button id="new-game">Start New Game</button>
+        <button id="load-game">Continue</button>
+        <button id="settings-btn">Settings</button>
+        <input type="file" id="file-input" style="display:none">
+    </div>
+
+    <!-- Settings Screen -->
+    <div id="settings-screen" class="screen" style="display:none">
+        <h2>Settings</h2>
+        <label>
+            Music:
+            <input type="checkbox" id="music-toggle" checked>
+        </label>
+        <br><br>
+        <label>
+            Volume:
+            <input type="range" id="music-volume" min="0" max="100" value="50">
+        </label>
+        <br><br>
+        <button id="settings-back">Back</button>
+    </div>
+
+    <!-- Game Container -->
+    <div id="game-container" class="screen" style="display:none">
+        <canvas id="game-canvas"></canvas>
+        <div id="ui-panel">
+            <!-- Resources, research, buttons go here -->
+        </div>
+    </div>
+
+    <script type="module" src="main.js"></script>
+</body>
+</html>
