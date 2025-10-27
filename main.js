@@ -27,16 +27,29 @@ function generateMap() {
     }
 
     // Player base (Earth)
-    objects.push({ id: 1, type: 'planet', owner: 'player', x: 2, y: 2 });
-    // Space station near base
-    objects.push({ id: 2, type: 'station', owner: 'player', x: 3, y: 2 });
+    const earth = { id: 1, type: 'planet', owner: 'player', x: 2, y: 2 };
+    objects.push(earth);
+
+    // Space station next to Earth
+    const stationTile = findEmptyAdjacentTile(earth.x, earth.y);
+    if (stationTile) {
+        objects.push({
+            id: 2,
+            type: 'station',
+            owner: 'player',
+            x: stationTile.x,
+            y: stationTile.y,
+            hp: 500
+        });
+    }
+
     // Starter ship (frigate)
     objects.push({
         id: 3,
         type: 'frigate',
         owner: 'player',
-        x: 3,
-        y: 3,
+        x: stationTile ? stationTile.x : 3,
+        y: stationTile ? stationTile.y + 1 : 3,
         hasMoved: false,
         stats: {
             moveRange: 1,
@@ -45,6 +58,25 @@ function generateMap() {
             damage: 10
         }
     });
+}
+
+// ======= Find empty adjacent tile ======= //
+function findEmptyAdjacentTile(x, y) {
+    const offsets = [
+        { dx: -1, dy: -1 }, { dx: 0, dy: -1 }, { dx: 1, dy: -1 },
+        { dx: -1, dy: 0 },                  { dx: 1, dy: 0 },
+        { dx: -1, dy: 1 },  { dx: 0, dy: 1 },  { dx: 1, dy: 1 }
+    ];
+    for (let o of offsets) {
+        const tx = x + o.dx;
+        const ty = y + o.dy;
+        if (tx >= 0 && tx < cols && ty >= 0 && ty < rows) {
+            if (!isOccupied(tx, ty)) {
+                return { x: tx, y: ty };
+            }
+        }
+    }
+    return null;
 }
 
 // ======= Drawing ======= //
@@ -62,7 +94,7 @@ function drawObjects() {
         let color;
         switch (obj.type) {
             case 'planet': color = 'blue'; break;
-            case 'station': color = 'gray'; break;
+            case 'station': color = 'cyan'; break;
             case 'frigate': color = 'red'; break;
         }
 
@@ -78,7 +110,7 @@ function drawObjects() {
 
         // highlight if selected
         if (selectedObject && selectedObject.id === obj.id) {
-            ctx.strokeStyle = 'cyan';
+            ctx.strokeStyle = 'yellow';
             ctx.lineWidth = 2;
             ctx.strokeRect(
                 obj.x * tileSize,
