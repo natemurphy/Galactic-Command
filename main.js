@@ -18,11 +18,10 @@ document.addEventListener("DOMContentLoaded", () => {
     // Toolbar
     const toggleFogBtn = document.getElementById("toggle-fog");
 
-    // Background music
-    let bgMusic = new Audio("assets/background_music.mp3");
+    // Background music (optional, placeholder)
+    let bgMusic = new Audio(); // no source yet
     bgMusic.loop = true;
     bgMusic.volume = 0.5;
-    bgMusic.play();
 
     // New Game
     document.getElementById("new-game").addEventListener("click", () => {
