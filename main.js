@@ -18,8 +18,8 @@ document.addEventListener("DOMContentLoaded", () => {
     // Toolbar
     const toggleFogBtn = document.getElementById("toggle-fog");
 
-    // Background music (optional, placeholder)
-    let bgMusic = new Audio(); // no source yet
+    // Background music (skip error for now)
+    let bgMusic = new Audio(); // no source for now
     bgMusic.loop = true;
     bgMusic.volume = 0.5;
 
@@ -28,6 +28,9 @@ document.addEventListener("DOMContentLoaded", () => {
         gameState = initGameState();
         generateMap(gameState);
         startGame();
+
+        // Only play music after user clicked button
+        if (musicToggle.checked) bgMusic.play().catch(() => {});
     });
 
     // Continue Game
@@ -43,6 +46,9 @@ document.addEventListener("DOMContentLoaded", () => {
             const json = event.target.result;
             gameState = JSON.parse(json);
             startGame();
+
+            // Only play music after user clicked button
+            if (musicToggle.checked) bgMusic.play().catch(() => {});
         };
         reader.readAsText(file);
     });
@@ -61,7 +67,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Music controls
     musicToggle.addEventListener("change", () => {
-        if (musicToggle.checked) bgMusic.play();
+        if (musicToggle.checked) bgMusic.play().catch(() => {});
         else bgMusic.pause();
     });
 
