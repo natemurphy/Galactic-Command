@@ -1,8 +1,7 @@
 export function initGameState() {
-    const size = 100;
+    const size = 50; // slightly smaller for testing
     const map = [];
 
-    // Initialize empty map
     for (let y = 0; y < size; y++) {
         const row = [];
         for (let x = 0; x < size; x++) {
@@ -14,7 +13,7 @@ export function initGameState() {
         map.push(row);
     }
 
-    // Player base and ship at top-left
+    // Player base and ship top-left
     map[0][0].object = "playerBase";
     map[0][1].object = "playerShip";
     map[0][0].explored = true;
