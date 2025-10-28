@@ -38,48 +38,43 @@ document.getElementById("end-turn").addEventListener("click", () => {
     renderMap(gameState);
 });
 
-// --- Canvas click for movement/selection ---
-const canvas = document.getElementById("game-canvas");
-canvas.addEventListener("click", (e) => {
-    if (currentTurn !== 'player') return;
+canvas.addEventListener("click", e => {
+  if (currentTurn !== 'player') return;
 
-    const rect = canvas.getBoundingClientRect();
-    const TILE_SIZE = Math.floor(canvas.clientHeight / gameState.height);
-    const mouseX = e.clientX - rect.left;
-    const mouseY = e.clientY - rect.top;
-    const tileX = Math.floor(mouseX / TILE_SIZE);
-    const tileY = Math.floor(mouseY / TILE_SIZE);
+  const { x: tileX, y: tileY } = tileFromMouse(e);
+  const clickedTile = getObjectAtTile(tileX, tileY);
 
-    const clickedTile = gameState.map[tileY]?.[tileX];
-    if (!clickedTile) return;
+  if (selectedShip && !clickedTile) {
+    // calculate distance
+    const dx = Math.abs(tileX - selectedShip.x);
+    const dy = Math.abs(tileY - selectedShip.y);
 
-    // Select a player's frigate
-    if (clickedTile.objectData?.type === 'frigate' && clickedTile.objectData.owner === 'player') {
-        if (!clickedTile.objectData.hasMoved) selectedShip = clickedTile.objectData;
+    if (dx <= selectedShip.stats.moveRange && dy <= selectedShip.stats.moveRange && !isOccupied(tileX, tileY)) {
+      // Move ship
+      const oldTile = gameState.map[selectedShip.y][selectedShip.x];
+      oldTile.object = null;
+      oldTile.objectData = null;
+
+      const newTile = gameState.map[tileY][tileX];
+      newTile.object = 'frigate';
+      newTile.objectData = selectedShip;
+      newTile.explored = true; // make ship visible immediately
+
+      selectedShip.x = tileX;
+      selectedShip.y = tileY;
+      selectedShip.hasMoved = true; // mark ship as having moved this turn
+
+      selectedShip = null;
+
+      renderMap(gameState); // redraw map immediately
     }
-    // Move the selected ship
-    else if (selectedShip) {
-        const dx = Math.abs(tileX - selectedShip.x);
-        const dy = Math.abs(tileY - selectedShip.y);
-        const targetTile = gameState.map[tileY][tileX];
-
-        // Valid move: within range and tile not occupied
-        if ((dx + dy === 1) && !targetTile.objectData) {
-            // Clear old position
-            const oldTile = gameState.map[selectedShip.y][selectedShip.x];
-            oldTile.object = 'empty';
-            oldTile.objectData = null;
-
-            // Update new position
-            targetTile.object = 'frigate';
-            targetTile.objectData = selectedShip;
-            selectedShip.x = tileX;
-            selectedShip.y = tileY;
-            selectedShip.hasMoved = true;
-
-            selectedShip = null;
-        }
-    }
+  } else if (clickedTile && clickedTile.objectData?.owner === 'player' && clickedTile.objectData.type === 'frigate') {
+    selectedShip = clickedTile.objectData;
+  } else {
+    selectedShip = null;
+  }
+});
 
     renderMap(gameState, selectedShip);
 });
+
