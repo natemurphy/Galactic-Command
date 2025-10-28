@@ -10,8 +10,7 @@ const ICONS = {
 
 let fogHidden = false;
 
-export function renderMap(gameState, selectedShip = null) {
-
+export function generateMap(gameState) {
   const { map, width, height } = gameState;
 
   for (let y = 0; y < height; y++) {
@@ -24,45 +23,13 @@ export function renderMap(gameState, selectedShip = null) {
       else map[y][x].object = "empty";
     }
   }
-    // Highlight selected ship and its move range
-  if (selectedShip) {
-    const TILE_SIZE = Math.floor(canvas.clientHeight / gameState.height);
-    const ctx = canvas.getContext("2d");
-
-    ctx.strokeStyle = "yellow";
-    ctx.lineWidth = 2;
-
-    // Highlight selected tile
-    ctx.strokeRect(
-      selectedShip.x * TILE_SIZE,
-      selectedShip.y * TILE_SIZE,
-      TILE_SIZE,
-      TILE_SIZE
-    );
-
-    // Highlight move range (1 tile)
-    const moves = [
-      { x: selectedShip.x + 1, y: selectedShip.y },
-      { x: selectedShip.x - 1, y: selectedShip.y },
-      { x: selectedShip.x, y: selectedShip.y + 1 },
-      { x: selectedShip.x, y: selectedShip.y - 1 },
-    ];
-
-    ctx.strokeStyle = "cyan";
-    for (const m of moves) {
-      if (m.x >= 0 && m.y >= 0 && m.x < gameState.width && m.y < gameState.height) {
-        ctx.strokeRect(m.x * TILE_SIZE, m.y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
-      }
-    }
-  }
-
 }
 
 export function toggleFog() {
   fogHidden = !fogHidden;
 }
 
-export function renderMap(gameState) {
+export function renderMap(gameState, selectedShip = null) {
   const canvas = document.getElementById("game-canvas");
   const { map, width, height } = gameState;
   const TILE_SIZE = Math.floor(canvas.clientHeight / height);
@@ -90,5 +57,33 @@ export function renderMap(gameState) {
       ctx.fillText(icon, x * TILE_SIZE + TILE_SIZE / 2, y * TILE_SIZE + TILE_SIZE / 2);
     }
   }
-}
 
+  // --- Highlight selected ship and move range ---
+  if (selectedShip) {
+    ctx.strokeStyle = "yellow";
+    ctx.lineWidth = 2;
+
+    // Highlight selected tile
+    ctx.strokeRect(
+      selectedShip.x * TILE_SIZE,
+      selectedShip.y * TILE_SIZE,
+      TILE_SIZE,
+      TILE_SIZE
+    );
+
+    // Highlight move range (1 tile)
+    const moves = [
+      { x: selectedShip.x + 1, y: selectedShip.y },
+      { x: selectedShip.x - 1, y: selectedShip.y },
+      { x: selectedShip.x, y: selectedShip.y + 1 },
+      { x: selectedShip.x, y: selectedShip.y - 1 },
+    ];
+
+    ctx.strokeStyle = "cyan";
+    for (const m of moves) {
+      if (m.x >= 0 && m.y >= 0 && m.x < gameState.width && m.y < gameState.height) {
+        ctx.strokeRect(m.x * TILE_SIZE, m.y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+      }
+    }
+  }
+}
