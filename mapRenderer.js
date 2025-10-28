@@ -10,23 +10,6 @@ const ICONS = {
 
 let fogHidden = false;
 
-// --- Exported functions --- //
-export function generateMap(gameState) {
-  const { map, width, height } = gameState;
-
-  for (let y = 0; y < height; y++) {
-    for (let x = 0; x < width; x++) {
-      if (map[y][x].object) continue;
-
-      const rand = Math.random();
-      if (rand < 0.02) map[y][x].object = "enemy";
-      else if (rand < 0.05) map[y][x].object = "planet";
-      else if (rand < 0.1) map[y][x].object = "asteroid";
-      else map[y][x].object = "empty";
-    }
-  }
-}
-
 export function toggleFog() {
   fogHidden = !fogHidden;
 }
@@ -45,40 +28,51 @@ export function renderMap(gameState, selectedShip = null) {
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
 
+  // Draw tiles
   for (let y = 0; y < height; y++) {
     for (let x = 0; x < width; x++) {
       const tile = map[y][x];
       let icon;
+
       if (fogHidden || tile.explored) {
         icon = ICONS[tile.object] || ICONS.empty;
       } else {
         icon = ICONS.unexplored;
       }
+
       ctx.fillText(icon, x * TILE_SIZE + TILE_SIZE / 2, y * TILE_SIZE + TILE_SIZE / 2);
     }
   }
 
-  // Highlight selected ship and move range
-  if (selectedShip) {
+  // Draw selected ship highlights
+  if (selectedShip && !selectedShip.hasMoved) {
     ctx.strokeStyle = "yellow";
     ctx.lineWidth = 2;
-    ctx.strokeRect(selectedShip.x * TILE_SIZE, selectedShip.y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+    ctx.strokeRect(
+      selectedShip.x * TILE_SIZE,
+      selectedShip.y * TILE_SIZE,
+      TILE_SIZE,
+      TILE_SIZE
+    );
 
     ctx.strokeStyle = "cyan";
-    const directions = [
-      { dx: 1, dy: 0 },
-      { dx: -1, dy: 0 },
-      { dx: 0, dy: 1 },
-      { dx: 0, dy: -1 }
+    const moves = [
+      { x: selectedShip.x + 1, y: selectedShip.y },
+      { x: selectedShip.x - 1, y: selectedShip.y },
+      { x: selectedShip.x, y: selectedShip.y + 1 },
+      { x: selectedShip.x, y: selectedShip.y - 1 },
+      { x: selectedShip.x + 1, y: selectedShip.y + 1 },
+      { x: selectedShip.x - 1, y: selectedShip.y - 1 },
+      { x: selectedShip.x + 1, y: selectedShip.y - 1 },
+      { x: selectedShip.x - 1, y: selectedShip.y + 1 },
     ];
-    for (const dir of directions) {
-      const tx = selectedShip.x + dir.dx;
-      const ty = selectedShip.y + dir.dy;
-      if (tx >= 0 && tx < width && ty >= 0 && ty < height) {
-        const targetTile = map[ty][tx];
-        if (!targetTile.object || targetTile.object === "empty") {
-          ctx.strokeRect(tx * TILE_SIZE, ty * TILE_SIZE, TILE_SIZE, TILE_SIZE);
-        }
+
+    for (const m of moves) {
+      if (
+        m.x >= 0 && m.y >= 0 && m.x < width && m.y < height &&
+        (!map[m.y][m.x].object)
+      ) {
+        ctx.strokeRect(m.x * TILE_SIZE, m.y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
       }
     }
   }
