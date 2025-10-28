@@ -59,15 +59,16 @@ function tileFromMouse(e) {
 
 // ======= Map & Object Generation =======
 function generateMap() {
-    // Calculate number of columns/rows based on map area
+    // Canvas sizing respecting map-area and padding
     const mapArea = document.getElementById('map-area');
+    const padding = 10; // space above/below map
     canvas.width = mapArea.clientWidth;
-    canvas.height = mapArea.clientHeight;
+    canvas.height = mapArea.clientHeight - padding*2;
 
     cols = Math.floor(canvas.width / tileSize);
     rows = Math.floor(canvas.height / tileSize);
 
-    // Generate empty map
+    // Empty map
     map = [];
     for (let y = 0; y < rows; y++) {
         const row = [];
@@ -176,7 +177,6 @@ document.getElementById('end-turn').addEventListener('click',()=>{
     for(let obj of objects){
         if(obj.owner==='player') obj.hasMoved=false;
     }
-    currentTurn='player';
     draw();
 });
 
