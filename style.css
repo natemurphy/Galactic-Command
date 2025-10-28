@@ -1,66 +1,55 @@
 body {
-    margin: 0;
-    font-family: monospace;
-    background-color: black;
-    color: white;
-    overflow: hidden; /* no scrollbars */
+  margin: 0;
+  background-color: black;
+  color: red;
+  font-family: monospace;
+  overflow: hidden;
 }
 
-/* Splash/settings screens stay centered */
 .screen {
-    width: 100vw;
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
+  display: none;
+  text-align: center;
+  padding-top: 20vh;
 }
 
-/* Game layout — 3-column grid */
-#game-container {
-    display: grid;
-    grid-template-columns: 220px 1fr 220px;
-    width: 100vw;
-    height: 100vh;
+.screen.active {
+  display: block;
 }
 
-/* Left toolbar */
-#left-bar {
-    background-color: #111;
-    padding: 10px;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    align-items: flex-start;
-    gap: 12px;
-    border-right: 2px solid red;
+.hidden {
+  display: none;
 }
 
-/* Right stats/resources */
-#right-bar {
-    background-color: #111;
-    padding: 10px;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    align-items: flex-start;
-    gap: 12px;
-    border-left: 2px solid red;
+#game-screen {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
 }
 
-/* Map area centered horizontally and vertically */
-#map-area {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
+#left-bar, #right-bar {
+  width: 220px;
+  border: 2px solid red;
+  padding: 10px;
+  box-sizing: border-box;
 }
 
-/* Canvas fits view height, padded slightly to avoid scrollbars */
 #game-canvas {
-    background-color: black;
-    display: block;
-    border: 2px solid red;
-    max-height: calc(100vh - 20px);
-    max-width: 100%;
+  flex-grow: 1;
+  background-color: #000;
+  border-top: 2px solid red;
+  border-bottom: 2px solid red;
+}
+
+button {
+  background: black;
+  color: red;
+  border: 1px solid red;
+  padding: 8px;
+  margin: 5px;
+  cursor: pointer;
+}
+
+button:hover {
+  background: red;
+  color: black;
 }
