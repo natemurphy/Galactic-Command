@@ -183,25 +183,31 @@ document.getElementById('settings-back').addEventListener('click',()=>{
     splashScreen.style.display='flex';
 });
 
-// ===== Resize =====
-window.addEventListener('resize',()=>{
-    if(gameScreen.style.display!=='none') generateMap();
-});
-// ===== Resize canvas to fit map area =====
+// ===== Resize canvas to fill map area as big square =====
 function resizeCanvas() {
     const mapArea = document.getElementById('map-area');
-    canvas.width = mapArea.clientWidth;
-    canvas.height = mapArea.clientHeight;
+    
+    // Available width/height after accounting for sidebars and padding
+    const availableWidth = mapArea.clientWidth;
+    const availableHeight = mapArea.clientHeight;
+
+    // Make it square: use the smaller of width/height
+    const size = Math.min(availableWidth, availableHeight);
+
+    canvas.width = size;
+    canvas.height = size;
+
+    draw(); // redraw after resize
 }
 
 // Resize on window resize
 window.addEventListener('resize', () => {
     resizeCanvas();
-    draw(); // redraw objects after resize
 });
 
-// Initial resize when game starts
-if (gameScreen.style.display !== 'none') {
+// Resize initially when game starts
+window.addEventListener('load', () => {
     resizeCanvas();
-}
+});
+
 
