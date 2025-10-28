@@ -6,7 +6,7 @@ body {
     overflow: hidden;
 }
 
-/* Splash/settings screens */
+/* Splash/settings screens centered */
 .screen {
     width: 100vw;
     height: 100vh;
@@ -16,10 +16,10 @@ body {
     justify-content: center;
 }
 
-/* Game Layout — 3-column grid */
+/* Game layout — 3-column grid */
 #game-container {
     display: grid;
-    grid-template-columns: 220px 1fr 220px;
+    grid-template-columns: 220px 1fr 220px; /* Left sidebar | map | right sidebar */
     width: 100vw;
     height: 100vh;
 }
@@ -34,6 +34,7 @@ body {
     align-items: flex-start;
     gap: 12px;
     border-right: 2px solid red;
+    height: 100%;
 }
 
 /* Right Stats/Resources */
@@ -46,19 +47,24 @@ body {
     align-items: flex-start;
     gap: 12px;
     border-left: 2px solid red;
+    height: 100%;
 }
 
-/* Map area centered */
+/* Map area */
 #map-area {
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 10px;
     background-color: black;
+    padding: 10px 0; /* Small space top/bottom */
+    width: 100%;
+    height: 100%;
 }
 
 /* Canvas fills available map area */
 #game-canvas {
     display: block;
     border: 2px solid red;
+    max-width: 100%;
+    max-height: 100%;
 }
