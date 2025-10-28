@@ -1,7 +1,7 @@
 body {
     margin: 0;
     font-family: monospace;
-    background-color: green;
+    background-color: black;
     color: white;
     overflow: hidden;
 }
@@ -67,4 +67,5 @@ body {
     border: 2px solid red;
     background-color: black;
 }
+
 
