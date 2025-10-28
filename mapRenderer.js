@@ -26,14 +26,16 @@ export function generateMap(gameState) {
     }
 }
 
-export function toggleFog(gameState) {
+export function toggleFog() {
     fogHidden = !fogHidden;
 }
 
 export function renderMap(gameState) {
     const canvas = document.getElementById("game-canvas");
     const { map, width, height } = gameState;
-    const TILE_SIZE = Math.floor(canvas.parentElement.clientHeight / height);
+
+    const mapArea = document.getElementById("map-area");
+    const TILE_SIZE = Math.floor(mapArea.clientHeight / height);
 
     canvas.width = TILE_SIZE * width;
     canvas.height = TILE_SIZE * height;
@@ -49,11 +51,8 @@ export function renderMap(gameState) {
             const tile = map[y][x];
             let icon;
 
-            if (fogHidden || tile.explored) {
-                icon = ICONS[tile.object] || ICONS.empty;
-            } else {
-                icon = ICONS.unexplored;
-            }
+            if (fogHidden || tile.explored) icon = ICONS[tile.object] || ICONS.empty;
+            else icon = ICONS.unexplored;
 
             ctx.fillText(icon, x * TILE_SIZE + TILE_SIZE / 2, y * TILE_SIZE + TILE_SIZE / 2);
         }
