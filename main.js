@@ -1,31 +1,33 @@
-// ===== Canvas & Context =====
-const canvas = document.getElementById("game-canvas");
-const ctx = canvas.getContext("2d");
-const tileSize = 50;
-let cols, rows;
+// ======= Canvas Setup =======
+const canvas = document.getElementById('game-canvas');
+const ctx = canvas.getContext('2d');
+const tileSize = 40;
 
-// ===== Game State =====
+let cols = 0;
+let rows = 0;
+
+// ======= Game State =======
 let map = [];
 let objects = [];
 let selectedObject = null;
-let currentTurn = 'player';
+let currentTurn = 'player'; // 'player' or 'enemy'
 let fogEnabled = true;
 
-// ===== DOM Elements =====
-const splashScreen = document.getElementById("splash-screen");
-const settingsScreen = document.getElementById("settings-screen");
-const gameScreen = document.getElementById("game-screen");
-const shipInfo = document.getElementById("ship-info");
+// ======= DOM Elements =======
+const splashScreen = document.getElementById('splash-screen');
+const settingsScreen = document.getElementById('settings-screen');
+const gameScreen = document.getElementById('game-container');
+const shipInfo = document.getElementById('ship-info');
+const turnIndicator = document.getElementById('turn-indicator');
 
-// ===== Emoji Icons =====
 const ICONS = {
-    empty: '⬛',
     planet: '🪐',
-    station: '🏰',
-    frigate: '🚀'
+    station: '🏭',
+    frigate: '🚀',
+    empty: '·'
 };
 
-// ===== Helper Functions =====
+// ======= Helper Functions =======
 function getObjectAtTile(x, y) {
     return objects.find(o => o.x === x && o.y === y);
 }
@@ -36,16 +38,14 @@ function isOccupied(x, y) {
 
 function findEmptyAdjacentTile(x, y) {
     const offsets = [
-        { dx:-1, dy:-1 }, { dx:0, dy:-1 }, { dx:1, dy:-1 },
-        { dx:-1, dy:0 },                  { dx:1, dy:0 },
-        { dx:-1, dy:1 }, { dx:0, dy:1 },  { dx:1, dy:1 }
+        {dx:-1,dy:-1},{dx:0,dy:-1},{dx:1,dy:-1},
+        {dx:-1,dy:0},           {dx:1,dy:0},
+        {dx:-1,dy:1},{dx:0,dy:1},{dx:1,dy:1}
     ];
     for (let o of offsets) {
         const tx = x + o.dx;
         const ty = y + o.dy;
-        if (tx >= 0 && tx < cols && ty >= 0 && ty < rows) {
-            if (!isOccupied(tx, ty)) return {x:tx, y:ty};
-        }
+        if(tx>=0 && tx<cols && ty>=0 && ty<rows && !isOccupied(tx,ty)) return {x:tx,y:ty};
     }
     return null;
 }
@@ -54,21 +54,24 @@ function tileFromMouse(e) {
     const rect = canvas.getBoundingClientRect();
     const mx = e.clientX - rect.left;
     const my = e.clientY - rect.top;
-    return { x: Math.floor(mx/tileSize), y: Math.floor(my/tileSize) };
+    return { x: Math.floor(mx / tileSize), y: Math.floor(my / tileSize) };
 }
 
-// ===== Map & Objects =====
+// ======= Map & Object Generation =======
 function generateMap() {
-    canvas.width = canvas.parentElement.clientWidth;
-    canvas.height = canvas.parentElement.clientHeight;
+    const mapArea = document.getElementById('map-area');
+    canvas.width = mapArea.clientWidth;
+    canvas.height = mapArea.clientHeight;
+
     cols = Math.floor(canvas.width / tileSize);
     rows = Math.floor(canvas.height / tileSize);
 
+    // generate empty map
     map = [];
-    for (let y=0;y<rows;y++){
+    for (let y = 0; y < rows; y++) {
         const row = [];
-        for (let x=0;x<cols;x++){
-            row.push({type:'empty', visible:true});
+        for (let x = 0; x < cols; x++) {
+            row.push({ type: 'empty', visible: true });
         }
         map.push(row);
     }
@@ -76,60 +79,63 @@ function generateMap() {
     objects = [];
 
     // Player planet
-    const earth = {id:1, type:'planet', owner:'player', x:2, y:2};
+    const earth = { id:1, type:'planet', owner:'player', x:2, y:2 };
     objects.push(earth);
 
     // Station
     const stationTile = findEmptyAdjacentTile(earth.x, earth.y);
-    if(stationTile){
-        objects.push({id:2, type:'station', owner:'player', x:stationTile.x, y:stationTile.y, hp:500});
+    if(stationTile) {
+        objects.push({id:2,type:'station',owner:'player',x:stationTile.x,y:stationTile.y,hp:500});
     }
 
     // Frigate
     let frigX = 3, frigY = 3;
-    if(stationTile && !isOccupied(stationTile.x, stationTile.y+1)){
-        frigX = stationTile.x; frigY = stationTile.y+1;
+    if(stationTile && !isOccupied(stationTile.x, stationTile.y + 1)) {
+        frigX = stationTile.x;
+        frigY = stationTile.y + 1;
     } else {
         const fallback = findEmptyAdjacentTile(earth.x, earth.y);
-        if(fallback){ frigX=fallback.x; frigY=fallback.y; }
+        if(fallback){ frigX = fallback.x; frigY = fallback.y; }
     }
     objects.push({id:3,type:'frigate',owner:'player',x:frigX,y:frigY,hasMoved:false,stats:{moveRange:1,hp:100,damage:10}});
+
+    draw();
 }
 
-// ===== Drawing =====
+// ======= Drawing =======
 function draw() {
     ctx.clearRect(0,0,canvas.width,canvas.height);
     ctx.font = `${tileSize}px monospace`;
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
 
     for(let y=0;y<rows;y++){
         for(let x=0;x<cols;x++){
-            const obj = getObjectAtTile(x,y);
-            let icon = ICONS.empty;
-            if(obj){ icon = ICONS[obj.type]||ICONS.empty; }
-
+            let obj = getObjectAtTile(x,y);
+            let icon = obj ? ICONS[obj.type] : ICONS.empty;
             let alpha = 1;
+
+            // dim tiles if ship is selected
             if(selectedObject){
-                if(!obj && Math.abs(x-selectedObject.x)<=selectedObject.stats.moveRange &&
-                   Math.abs(y-selectedObject.y)<=selectedObject.stats.moveRange){
-                    alpha = 1;
-                } else if(obj && obj.type==='frigate' && obj.hasMoved){ alpha = 0.3; }
-                else alpha = 0.3;
+                if(!obj || (obj.owner!=='player' || obj.hasMoved)) alpha = 0.3;
             }
+            // dim moved ships
+            if(obj && obj.owner==='player' && obj.hasMoved) alpha = 0.5;
+
             ctx.globalAlpha = alpha;
-            ctx.fillText(icon, x*tileSize+tileSize/2, y*tileSize+tileSize/2);
+            ctx.fillText(icon, x*tileSize + tileSize/2, y*tileSize + tileSize/2);
         }
     }
 
-    // movement overlay
+    // draw movement range
     if(selectedObject && !selectedObject.hasMoved){
-        ctx.fillStyle = 'rgba(0,255,255,0.2)';
+        ctx.fillStyle = 'rgba(0,255,255,0.3)';
+        ctx.globalAlpha = 1;
         for(let dx=-selectedObject.stats.moveRange; dx<=selectedObject.stats.moveRange; dx++){
             for(let dy=-selectedObject.stats.moveRange; dy<=selectedObject.stats.moveRange; dy++){
                 if(dx===0 && dy===0) continue;
-                const tx = selectedObject.x+dx;
-                const ty = selectedObject.y+dy;
+                const tx = selectedObject.x + dx;
+                const ty = selectedObject.y + dy;
                 if(tx>=0 && tx<cols && ty>=0 && ty<rows && !isOccupied(tx,ty)){
                     ctx.fillRect(tx*tileSize, ty*tileSize, tileSize, tileSize);
                 }
@@ -139,7 +145,7 @@ function draw() {
     ctx.globalAlpha = 1;
 }
 
-// ===== Input =====
+// ======= Input Handling =======
 canvas.addEventListener('click', e=>{
     if(currentTurn!=='player') return;
     const {x,y} = tileFromMouse(e);
@@ -157,37 +163,45 @@ canvas.addEventListener('click', e=>{
         }
     } else if(clicked && clicked.owner==='player' && clicked.type==='frigate'){
         selectedObject=clicked;
-        shipInfo.innerText=`Move: ${selectedObject.stats.moveRange}`;
+        shipInfo.innerText = `Move: ${selectedObject.stats.moveRange}`;
     } else { selectedObject=null; shipInfo.innerText=''; }
     draw();
 });
 
-// ===== Turn System =====
+// ======= Turn System =======
 document.getElementById('end-turn').addEventListener('click',()=>{
     if(currentTurn!=='player') return;
-    for(let obj of objects){ if(obj.owner==='player') obj.hasMoved=false; }
+    for(let obj of objects){
+        if(obj.owner==='player') obj.hasMoved=false;
+    }
     currentTurn='player';
     draw();
 });
 
-// ===== Fog =====
-document.getElementById('toggle-fog').addEventListener('click',()=>{
+// ======= Fog Toggle =======
+document.getElementById('toggle-fog').addEventListener('click', ()=>{
     fogEnabled = !fogEnabled;
     draw();
 });
 
-// ===== Screen Switching =====
+// ======= Screen Switching =======
 document.getElementById('new-game').addEventListener('click',()=>{
-    splashScreen.classList.add('hidden');
-    gameScreen.classList.remove('hidden');
+    splashScreen.style.display = 'none';
+    gameScreen.style.display = 'grid';
     generateMap();
-    draw();
 });
 document.getElementById('settings-btn').addEventListener('click',()=>{
-    splashScreen.classList.add('hidden');
-    settingsScreen.classList.remove('hidden');
+    splashScreen.style.display='none';
+    settingsScreen.style.display='flex';
 });
 document.getElementById('settings-back').addEventListener('click',()=>{
-    settingsScreen.classList.add('hidden');
-    splashScreen.classList.remove('hidden');
+    settingsScreen.style.display='none';
+    splashScreen.style.display='flex';
+});
+
+// ======= Window Resize =======
+window.addEventListener('resize', ()=>{
+    if(gameScreen.style.display!=='none'){
+        generateMap();
+    }
 });
