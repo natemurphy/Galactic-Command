@@ -1,187 +1,168 @@
-// ==============================
-// BASIC SETUP
-// ==============================
-const splash = document.getElementById("splash-screen");
-const settings = document.getElementById("settings-screen");
-const game = document.getElementById("game-screen");
+// ======= Basic Setup ======= //
 const canvas = document.getElementById("game-canvas");
 const ctx = canvas.getContext("2d");
 
-const newGameBtn = document.getElementById("new-game");
-const toggleFogBtn = document.getElementById("toggle-fog");
-const endTurnBtn = document.getElementById("end-turn");
+const tileSize = 40;
+let cols, rows;
 
-let tileSize = 40;
-let mapWidth, mapHeight;
+// ======= Game State ======= //
 let map = [];
-let selectedShip = null;
+let objects = [];
+let selectedObject = null;
+let currentTurn = 'player';
+let fogEnabled = true;
 
-let fogEnabled = false;
-let hasMovedThisTurn = false;
-let visibleRadius = 3;
+// ======= DOM Elements ======= //
+const splashScreen = document.getElementById("splash-screen");
+const settingsScreen = document.getElementById("settings-screen");
+const gameContainer = document.getElementById("game-container");
+const fileInput = document.getElementById("file-input");
 
-let currentTurn = "Player";
-
-// Player resources
-let metal = 100;
-let energy = 50;
-let population = 10;
-
-// ==============================
-// EVENT LISTENERS
-// ==============================
-newGameBtn.addEventListener("click", () => {
-  splash.classList.add("hidden");
-  game.classList.remove("hidden");
-  initGame();
+// ======= Splash Screen Buttons ======= //
+document.getElementById("new-game").addEventListener("click", () => {
+    splashScreen.style.display = "none";
+    settingsScreen.style.display = "none";
+    gameContainer.style.display = "grid";
+    initGame();
 });
 
-toggleFogBtn.addEventListener("click", () => {
-  fogEnabled = !fogEnabled;
-  draw();
+document.getElementById("settings-btn").addEventListener("click", () => {
+    splashScreen.style.display = "none";
+    settingsScreen.style.display = "flex";
 });
 
-endTurnBtn.addEventListener("click", endTurn);
+document.getElementById("settings-back").addEventListener("click", () => {
+    settingsScreen.style.display = "none";
+    splashScreen.style.display = "flex";
+});
 
-canvas.addEventListener("click", handleCanvasClick);
+document.getElementById("toggle-fog").addEventListener("click", () => {
+    fogEnabled = !fogEnabled;
+    draw();
+});
 
-// ==============================
-// MAP & GAME INITIALIZATION
-// ==============================
+document.getElementById("end-turn").addEventListener("click", endTurn);
+
+// ======= Init Game ======= //
 function initGame() {
-  resizeCanvas();
-  generateMap();
-  placeObjects();
-  draw();
+    canvas.width = window.innerWidth - 440;
+    canvas.height = window.innerHeight - 20;
+    cols = Math.floor(canvas.width / tileSize);
+    rows = Math.floor(canvas.height / tileSize);
+
+    generateMap();
+    draw();
 }
 
-function resizeCanvas() {
-  canvas.width = window.innerWidth - 440;
-  canvas.height = window.innerHeight;
-  mapWidth = Math.floor(canvas.width / tileSize);
-  mapHeight = Math.floor(canvas.height / tileSize);
-}
-
+// ======= Map Generation ======= //
 function generateMap() {
-  map = [];
-  for (let y = 0; y < mapHeight; y++) {
-    const row = [];
-    for (let x = 0; x < mapWidth; x++) {
-      row.push({ type: "empty" });
+    map = [];
+    objects = [];
+
+    for (let y = 0; y < rows; y++) {
+        const row = [];
+        for (let x = 0; x < cols; x++) {
+            row.push({ visible: true });
+        }
+        map.push(row);
     }
-    map.push(row);
-  }
+
+    const earth = { id: 1, type: 'planet', owner: 'player', x: 2, y: 2 };
+    const station = { id: 2, type: 'station', owner: 'player', x: 3, y: 2 };
+    const frigate = {
+        id: 3,
+        type: 'frigate',
+        owner: 'player',
+        x: 3,
+        y: 3,
+        hasMoved: false,
+        stats: { moveRange: 1 }
+    };
+
+    objects.push(earth, station, frigate);
 }
 
-function placeObjects() {
-  map[2][2].type = "planet";
-  map[2][3].type = "station";
-  map[3][3].type = "frigate";
-}
-
-// ==============================
-// DRAWING FUNCTIONS
-// ==============================
-function draw() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-  for (let y = 0; y < mapHeight; y++) {
-    for (let x = 0; x < mapWidth; x++) {
-      const tile = map[y][x];
-      drawTile(x, y, tile.type);
+// ======= Drawing ======= //
+function drawGrid() {
+    ctx.strokeStyle = "#333";
+    for (let x = 0; x < cols; x++) {
+        for (let y = 0; y < rows; y++) {
+            ctx.strokeRect(x * tileSize, y * tileSize, tileSize, tileSize);
+        }
     }
-  }
-
-  // Fog of War Layer
-  if (fogEnabled) {
-    drawFog();
-  }
 }
 
-function drawTile(x, y, type) {
-  const emojis = {
-    empty: "·",
-    planet: "🌍",
-    station: "🏭",
-    frigate: "🚀"
-  };
+function drawObjects() {
+    for (const obj of objects) {
+        if (fogEnabled && !map[obj.y][obj.x].visible) continue;
 
-  ctx.font = `${tileSize - 10}px monospace`;
-  ctx.textAlign = "center";
-  ctx.textBaseline = "middle";
-  ctx.fillStyle = "red";
+        let emoji = "❓";
+        if (obj.type === "planet") emoji = "🪐";
+        else if (obj.type === "station") emoji = "🏭";
+        else if (obj.type === "frigate") emoji = "🚀";
 
-  ctx.fillText(emojis[type] || "·", x * tileSize + tileSize / 2, y * tileSize + tileSize / 2);
+        ctx.font = `${tileSize * 0.8}px sans-serif`;
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(emoji, obj.x * tileSize + tileSize / 2, obj.y * tileSize + tileSize / 2);
+
+        if (selectedObject && selectedObject.id === obj.id) {
+            ctx.strokeStyle = "yellow";
+            ctx.lineWidth = 2;
+            ctx.strokeRect(obj.x * tileSize, obj.y * tileSize, tileSize, tileSize);
+        }
+    }
 }
 
 function drawFog() {
-  const shipPos = findShipPosition();
-  if (!shipPos) return;
+    if (!fogEnabled) return;
+    ctx.fillStyle = "rgba(0, 0, 0, 0.4)";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+}
 
-  for (let y = 0; y < mapHeight; y++) {
-    for (let x = 0; x < mapWidth; x++) {
-      const dx = x - shipPos.x;
-      const dy = y - shipPos.y;
-      const dist = Math.sqrt(dx * dx + dy * dy);
-      if (dist > visibleRadius) {
-        ctx.fillStyle = "rgba(0, 0, 0, 0.6)";
-        ctx.fillRect(x * tileSize, y * tileSize, tileSize, tileSize);
-      }
+function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    drawGrid();
+    drawObjects();
+    drawFog();
+}
+
+// ======= Interaction ======= //
+canvas.addEventListener("click", e => {
+    if (currentTurn !== 'player') return;
+    const rect = canvas.getBoundingClientRect();
+    const x = Math.floor((e.clientX - rect.left) / tileSize);
+    const y = Math.floor((e.clientY - rect.top) / tileSize);
+    const clicked = objects.find(o => o.x === x && o.y === y);
+
+    if (selectedObject && !clicked) {
+        const dx = Math.abs(x - selectedObject.x);
+        const dy = Math.abs(y - selectedObject.y);
+        if (!selectedObject.hasMoved && dx <= selectedObject.stats.moveRange && dy <= selectedObject.stats.moveRange) {
+            selectedObject.x = x;
+            selectedObject.y = y;
+            selectedObject.hasMoved = true;
+        }
+        selectedObject = null;
+    } else if (clicked && clicked.owner === 'player' && clicked.type === 'frigate') {
+        selectedObject = clicked;
+    } else {
+        selectedObject = null;
     }
-  }
-}
+    draw();
+});
 
-// ==============================
-// GAME LOGIC
-// ==============================
-function handleCanvasClick(e) {
-  const rect = canvas.getBoundingClientRect();
-  const x = Math.floor((e.clientX - rect.left) / tileSize);
-  const y = Math.floor((e.clientY - rect.top) / tileSize);
-
-  const clickedTile = map[y]?.[x];
-  if (!clickedTile) return;
-
-  if (clickedTile.type === "frigate") {
-    selectedShip = { x, y };
-  } else if (selectedShip && clickedTile.type === "empty") {
-    tryMoveShip(selectedShip.x, selectedShip.y, x, y);
-  }
-  draw();
-}
-
-function tryMoveShip(fromX, fromY, toX, toY) {
-  if (hasMovedThisTurn) return;
-
-  const dx = Math.abs(toX - fromX);
-  const dy = Math.abs(toY - fromY);
-  if (dx <= 1 && dy <= 1 && map[toY][toX].type === "empty") {
-    map[toY][toX].type = "frigate";
-    map[fromY][fromX].type = "empty";
-    hasMovedThisTurn = true;
-  }
-}
-
-function findShipPosition() {
-  for (let y = 0; y < mapHeight; y++) {
-    for (let x = 0; x < mapWidth; x++) {
-      if (map[y][x].type === "frigate") return { x, y };
-    }
-  }
-  return null;
-}
-
+// ======= End Turn ======= //
 function endTurn() {
-  hasMovedThisTurn = false;
-  generateResources();
-  draw();
-}
+    if (currentTurn !== 'player') return;
+    currentTurn = 'enemy';
 
-function generateResources() {
-  metal += 5;
-  energy += 2;
-  population += 1;
-  document.getElementById("metal").textContent = metal;
-  document.getElementById("energy").textContent = energy;
-  document.getElementById("population").textContent = population;
+    setTimeout(() => {
+        // Reset movement flags
+        for (const obj of objects) {
+            if (obj.owner === 'player') obj.hasMoved = false;
+        }
+        currentTurn = 'player';
+        draw();
+    }, 1000);
 }
