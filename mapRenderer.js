@@ -81,9 +81,15 @@ export function renderMap(gameState, selectedShip = null) {
 
     ctx.strokeStyle = "cyan";
     for (const m of moves) {
-      if (m.x >= 0 && m.y >= 0 && m.x < gameState.width && m.y < gameState.height) {
+      if (
+        m.x >= 0 && m.y >= 0 &&
+        m.x < gameState.width && m.y < gameState.height &&
+        !gameState.map[m.y][m.x].object // skip tiles already occupied
+      ) {
         ctx.strokeRect(m.x * TILE_SIZE, m.y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
       }
     }
+
   }
 }
+
