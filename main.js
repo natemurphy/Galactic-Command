@@ -187,3 +187,21 @@ document.getElementById('settings-back').addEventListener('click',()=>{
 window.addEventListener('resize',()=>{
     if(gameScreen.style.display!=='none') generateMap();
 });
+// ===== Resize canvas to fit map area =====
+function resizeCanvas() {
+    const mapArea = document.getElementById('map-area');
+    canvas.width = mapArea.clientWidth;
+    canvas.height = mapArea.clientHeight;
+}
+
+// Resize on window resize
+window.addEventListener('resize', () => {
+    resizeCanvas();
+    draw(); // redraw objects after resize
+});
+
+// Initial resize when game starts
+if (gameScreen.style.display !== 'none') {
+    resizeCanvas();
+}
+
