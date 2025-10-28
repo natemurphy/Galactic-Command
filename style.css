@@ -9,37 +9,48 @@ body {
 
 .screen {
   display: none;
+  width: 100vw;
+  height: 100vh;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
   text-align: center;
 }
 
 .screen.active {
-  display: block;
+  display: flex;
 }
 
 #game-screen {
-  display: flex;
+  display: grid;
+  grid-template-columns: 220px 1fr 220px;
+  width: 100vw;
   height: 100vh;
-  align-items: center;
-  justify-content: center;
 }
 
 #left-bar, #right-bar {
-  width: 220px;
+  background-color: #111;
   border: 2px solid red;
   padding: 10px;
-  box-sizing: border-box;
-  height: 95vh;
   display: flex;
   flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+#map-wrapper {
+  display: flex;
   align-items: center;
+  justify-content: center;
+  padding: 20px 0; /* top and bottom breathing room */
+  background-color: black;
 }
 
 #game-canvas {
-  flex: 1;
   border: 2px solid red;
-  background-color: black;
-  margin: 20px 0; /* adds equal top/bottom space */
   display: block;
+  width: 100%;
+  height: 100%;
 }
 
 button {
