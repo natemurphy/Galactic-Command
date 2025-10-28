@@ -6,7 +6,7 @@ body {
     overflow: hidden;
 }
 
-/* Splash/settings screens centered */
+/* Centered splash/settings screens */
 .screen {
     width: 100vw;
     height: 100vh;
@@ -16,46 +16,54 @@ body {
     justify-content: center;
 }
 
+/* --- Game Layout --- */
 #game-container {
-    display: flex; /* keep layout as you like */
+    display: flex;
+    flex-direction: row; /* ensure sidebars are horizontal */
     width: 100vw;
     height: 100vh;
+    overflow: hidden; /* prevent scrollbars */
 }
 
-/* Left toolbar */
+/* Left sidebar */
 #left-bar {
-    flex: 0 0 220px;
+    width: 220px;
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
     align-items: flex-start;
     padding: 10px;
     border-right: 2px solid red;
-    height: 100%;
+    background-color: #111;
 }
 
-/* Right stats/resources */
+/* Right sidebar */
 #right-bar {
-    flex: 0 0 220px;
+    width: 220px;
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
     align-items: flex-start;
     padding: 10px;
     border-left: 2px solid red;
-    height: 100%;
+    background-color: #111;
 }
 
+/* Central map area */
 #map-area {
-    flex: 1 1 auto;
+    flex-grow: 1;
     display: flex;
     justify-content: center;
     align-items: center;
     background-color: black;
+    overflow: hidden;
 }
 
-/* Canvas fills available map area */
+/* Canvas takes all map space */
 #game-canvas {
+    width: 100%;
+    height: 100%;
     display: block;
     border: 2px solid red;
+    background-color: black;
 }
