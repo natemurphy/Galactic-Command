@@ -3,7 +3,7 @@ body {
     font-family: monospace;
     background-color: black;
     color: white;
-    overflow: hidden; /* no scrollbars */
+    overflow: hidden;
 }
 
 /* Splash/settings screens centered */
@@ -16,7 +16,6 @@ body {
     justify-content: center;
 }
 
-/* Game layout — 3-column grid */
 #game-container {
     display: grid;
     grid-template-columns: 220px 1fr 220px; /* left, map, right */
@@ -24,7 +23,6 @@ body {
     height: 100vh;
 }
 
-/* Left toolbar */
 #left-bar, #right-bar {
     display: flex;
     flex-direction: column;
@@ -32,26 +30,22 @@ body {
     align-items: flex-start;
     padding: 10px;
     background-color: #111;
-    height: 100%;
+    height: 100vh;
     box-sizing: border-box;
 }
 
 #left-bar { border-right: 2px solid red; }
 #right-bar { border-left: 2px solid red; }
 
-/* Map area */
 #map-area {
     display: flex;
     justify-content: center;
     align-items: center;
-    background-color: black;
-    overflow: hidden; /* no scrollbars */
+    overflow: hidden;
+    height: 100vh;
 }
 
-/* Canvas inside map-area */
 #game-canvas {
     display: block;
     border: 2px solid red;
-    max-height: 100%;
-    max-width: 100%;
 }
