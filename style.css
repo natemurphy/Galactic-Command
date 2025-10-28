@@ -50,16 +50,17 @@ body {
     height: 100%;
 }
 
-/* Map area */
 #map-area {
     display: flex;
     justify-content: center;
     align-items: center;
     background-color: black;
-    padding: 10px 0; /* Small space top/bottom */
+    padding: 20px 0; /* More breathing room top/bottom */
     width: 100%;
     height: 100%;
+    overflow: hidden;
 }
+
 
 /* Canvas fills available map area */
 #game-canvas {
@@ -68,3 +69,4 @@ body {
     max-width: 100%;
     max-height: 100%;
 }
+
