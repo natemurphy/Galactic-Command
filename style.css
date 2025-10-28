@@ -17,34 +17,44 @@ body {
 }
 
 #game-container {
-    display: grid;
-    grid-template-columns: 220px 1fr 220px; /* left, map, right */
+    display: flex; /* keep layout as you like */
     width: 100vw;
     height: 100vh;
 }
 
-#left-bar, #right-bar {
+/* Left toolbar */
+#left-bar {
+    flex: 0 0 220px;
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
     align-items: flex-start;
     padding: 10px;
-    background-color: #111;
-    height: 100vh;
-    box-sizing: border-box;
+    border-right: 2px solid red;
+    height: 100%;
 }
 
-#left-bar { border-right: 2px solid red; }
-#right-bar { border-left: 2px solid red; }
+/* Right stats/resources */
+#right-bar {
+    flex: 0 0 220px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+    padding: 10px;
+    border-left: 2px solid red;
+    height: 100%;
+}
 
 #map-area {
+    flex: 1 1 auto;
     display: flex;
     justify-content: center;
     align-items: center;
-    overflow: hidden;
-    height: 100vh;
+    background-color: black;
 }
 
+/* Canvas fills available map area */
 #game-canvas {
     display: block;
     border: 2px solid red;
