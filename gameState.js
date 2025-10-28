@@ -1,5 +1,5 @@
 export function initGameState() {
-    // smaller map to fit vertically
+    // Map size
     const width = 50;
     const height = 30;
     const map = [];
@@ -15,6 +15,7 @@ export function initGameState() {
         map.push(row);
     }
 
+    // Player starting objects
     map[0][0].object = "playerBase";
     map[0][1].object = "playerShip";
     map[0][0].explored = true;
