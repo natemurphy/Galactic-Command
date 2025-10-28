@@ -1,261 +1,187 @@
-// ======= Basic Game Setup ======= //
+// ==============================
+// BASIC SETUP
+// ==============================
+const splash = document.getElementById("splash-screen");
+const settings = document.getElementById("settings-screen");
+const game = document.getElementById("game-screen");
 const canvas = document.getElementById("game-canvas");
 const ctx = canvas.getContext("2d");
 
-canvas.width = window.innerWidth - 440; // subtract left/right panels
-canvas.height = window.innerHeight - 20;
+const newGameBtn = document.getElementById("new-game");
+const toggleFogBtn = document.getElementById("toggle-fog");
+const endTurnBtn = document.getElementById("end-turn");
 
-const tileSize = 40;
-const cols = Math.floor(canvas.width / tileSize);
-const rows = Math.floor(canvas.height / tileSize);
-
-// ======= Game State ======= //
+let tileSize = 40;
+let mapWidth, mapHeight;
 let map = [];
-let objects = [];
-let selectedObject = null;
-let currentTurn = 'player'; // 'player' or 'enemy'
-let fogEnabled = true;
+let selectedShip = null;
 
-// ======= DOM Elements ======= //
-const splashScreen = document.getElementById("splash-screen");
-const settingsScreen = document.getElementById("settings-screen");
-const gameContainer = document.getElementById("game-container");
-const fileInput = document.getElementById("file-input");
+let fogEnabled = false;
+let hasMovedThisTurn = false;
+let visibleRadius = 3;
 
-// ======= Splash Screen Buttons ======= //
-document.getElementById("new-game").addEventListener("click", () => {
-    splashScreen.style.display = "none";
-    gameContainer.style.display = "grid";
-    generateMap();
-    draw();
+let currentTurn = "Player";
+
+// Player resources
+let metal = 100;
+let energy = 50;
+let population = 10;
+
+// ==============================
+// EVENT LISTENERS
+// ==============================
+newGameBtn.addEventListener("click", () => {
+  splash.classList.add("hidden");
+  game.classList.remove("hidden");
+  initGame();
 });
 
-document.getElementById("load-game").addEventListener("click", () => {
-    fileInput.click();
+toggleFogBtn.addEventListener("click", () => {
+  fogEnabled = !fogEnabled;
+  draw();
 });
 
-fileInput.addEventListener("change", (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = function(event) {
-        const savedState = JSON.parse(event.target.result);
-        map = savedState.map;
-        objects = savedState.objects;
-        selectedObject = null;
-        splashScreen.style.display = "none";
-        gameContainer.style.display = "grid";
-        draw();
-    };
-    reader.readAsText(file);
-});
+endTurnBtn.addEventListener("click", endTurn);
 
-document.getElementById("settings-btn").addEventListener("click", () => {
-    splashScreen.style.display = "none";
-    settingsScreen.style.display = "flex";
-});
+canvas.addEventListener("click", handleCanvasClick);
 
-document.getElementById("settings-back").addEventListener("click", () => {
-    settingsScreen.style.display = "none";
-    splashScreen.style.display = "flex";
-});
+// ==============================
+// MAP & GAME INITIALIZATION
+// ==============================
+function initGame() {
+  resizeCanvas();
+  generateMap();
+  placeObjects();
+  draw();
+}
 
-// ======= Fog Toggle ======= //
-document.getElementById("toggle-fog").addEventListener("click", () => {
-    fogEnabled = !fogEnabled;
-    draw();
-});
+function resizeCanvas() {
+  canvas.width = window.innerWidth - 440;
+  canvas.height = window.innerHeight;
+  mapWidth = Math.floor(canvas.width / tileSize);
+  mapHeight = Math.floor(canvas.height / tileSize);
+}
 
-// ======= Generate Map ======= //
 function generateMap() {
-    map = [];
-    objects = [];
-    for (let y = 0; y < rows; y++) {
-        let row = [];
-        for (let x = 0; x < cols; x++) {
-            row.push({ visible: true }); // initial fog placeholder
-        }
-        map.push(row);
+  map = [];
+  for (let y = 0; y < mapHeight; y++) {
+    const row = [];
+    for (let x = 0; x < mapWidth; x++) {
+      row.push({ type: "empty" });
     }
-
-    // Player base (Earth)
-    const earth = { id: 1, type: 'planet', owner: 'player', x: 2, y: 2 };
-    objects.push(earth);
-
-    // Space station next to Earth
-    const stationTile = findEmptyAdjacentTile(earth.x, earth.y);
-    if (stationTile) {
-        objects.push({
-            id: 2,
-            type: 'station',
-            owner: 'player',
-            x: stationTile.x,
-            y: stationTile.y,
-            hp: 500
-        });
-    }
-
-    // Starter ship (frigate) spawn
-    let frigateX = 3;
-    let frigateY = 3;
-    if (stationTile) {
-        if (!isOccupied(stationTile.x, stationTile.y + 1)) {
-            frigateX = stationTile.x;
-            frigateY = stationTile.y + 1;
-        } else {
-            const fallback = findEmptyAdjacentTile(earth.x, earth.y);
-            if (fallback) {
-                frigateX = fallback.x;
-                frigateY = fallback.y;
-            }
-        }
-    }
-
-    objects.push({
-        id: 3,
-        type: 'frigate',
-        owner: 'player',
-        x: frigateX,
-        y: frigateY,
-        hasMoved: false,
-        stats: {
-            moveRange: 1,
-            miningSpeed: 5,
-            hp: 100,
-            damage: 10
-        }
-    });
+    map.push(row);
+  }
 }
 
-// ======= Helper Functions ======= //
-function findEmptyAdjacentTile(x, y) {
-    const offsets = [
-        { dx: -1, dy: -1 }, { dx: 0, dy: -1 }, { dx: 1, dy: -1 },
-        { dx: -1, dy: 0 },                  { dx: 1, dy: 0 },
-        { dx: -1, dy: 1 },  { dx: 0, dy: 1 },  { dx: 1, dy: 1 }
-    ];
-    for (let o of offsets) {
-        const tx = x + o.dx;
-        const ty = y + o.dy;
-        if (tx >= 0 && tx < cols && ty >= 0 && ty < rows) {
-            if (!isOccupied(tx, ty)) return { x: tx, y: ty };
-        }
-    }
-    return null;
+function placeObjects() {
+  map[2][2].type = "planet";
+  map[2][3].type = "station";
+  map[3][3].type = "frigate";
 }
 
-function getObjectAtTile(x, y) {
-    return objects.find(o => o.x === x && o.y === y);
-}
-
-function isOccupied(x, y) {
-    return !!getObjectAtTile(x, y);
-}
-
-function tileFromMouse(e) {
-    const rect = canvas.getBoundingClientRect();
-    const mx = e.clientX - rect.left;
-    const my = e.clientY - rect.top;
-    return { x: Math.floor(mx / tileSize), y: Math.floor(my / tileSize) };
-}
-
-// ======= Drawing ======= //
-function drawGrid() {
-    ctx.strokeStyle = "#222";
-    for (let x = 0; x < cols; x++) {
-        for (let y = 0; y < rows; y++) {
-            ctx.strokeRect(x * tileSize, y * tileSize, tileSize, tileSize);
-        }
-    }
-}
-
-function drawObjects() {
-    for (let obj of objects) {
-        if (fogEnabled && !map[obj.y][obj.x].visible) continue;
-
-        let color;
-        switch (obj.type) {
-            case 'planet': color = 'blue'; break;
-            case 'station': color = 'cyan'; break;
-            case 'frigate': color = 'red'; break;
-        }
-
-        ctx.fillStyle = color;
-        ctx.beginPath();
-        ctx.arc(obj.x * tileSize + tileSize / 2, obj.y * tileSize + tileSize / 2, tileSize / 3, 0, Math.PI * 2);
-        ctx.fill();
-
-        if (selectedObject && selectedObject.id === obj.id) {
-            ctx.strokeStyle = 'yellow';
-            ctx.lineWidth = 2;
-            ctx.strokeRect(obj.x * tileSize, obj.y * tileSize, tileSize, tileSize);
-        }
-    }
-}
-
-function drawMovementRange(obj) {
-    if (!obj || obj.hasMoved || obj.owner !== 'player') return;
-    ctx.fillStyle = 'rgba(0, 255, 255, 0.2)';
-    for (let dx = -obj.stats.moveRange; dx <= obj.stats.moveRange; dx++) {
-        for (let dy = -obj.stats.moveRange; dy <= obj.stats.moveRange; dy++) {
-            if (dx === 0 && dy === 0) continue;
-            const tx = obj.x + dx;
-            const ty = obj.y + dy;
-            if (tx >= 0 && tx < cols && ty >= 0 && ty < rows && !isOccupied(tx, ty)) {
-                ctx.fillRect(tx * tileSize, ty * tileSize, tileSize, tileSize);
-            }
-        }
-    }
-}
-
-// ======= Input ======= //
-canvas.addEventListener("click", e => {
-    if (currentTurn !== 'player') return;
-    const { x, y } = tileFromMouse(e);
-    const clicked = getObjectAtTile(x, y);
-
-    if (selectedObject && !clicked) {
-        const dx = Math.abs(x - selectedObject.x);
-        const dy = Math.abs(y - selectedObject.y);
-        if (dx <= selectedObject.stats.moveRange && dy <= selectedObject.stats.moveRange && !isOccupied(x, y)) {
-            selectedObject.x = x;
-            selectedObject.y = y;
-            selectedObject.hasMoved = true;
-            selectedObject = null;
-        }
-    } else if (clicked && clicked.owner === 'player' && clicked.type === 'frigate') {
-        selectedObject = clicked;
-    } else {
-        selectedObject = null;
-    }
-    draw();
-});
-
-// ======= End Turn ======= //
-document.getElementById("end-turn").addEventListener("click", () => {
-    if (currentTurn !== 'player') return;
-    endPlayerTurn();
-});
-
-function endPlayerTurn() {
-    currentTurn = 'enemy';
-    // AI Placeholder
-    setTimeout(() => {
-        for (let obj of objects) {
-            if (obj.owner === 'player' && obj.type === 'frigate') obj.hasMoved = false;
-        }
-        currentTurn = 'player';
-        draw();
-    }, 1000);
-}
-
-// ======= Draw Cycle ======= //
+// ==============================
+// DRAWING FUNCTIONS
+// ==============================
 function draw() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    drawGrid();
-    drawObjects();
-    if (selectedObject) drawMovementRange(selectedObject);
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  for (let y = 0; y < mapHeight; y++) {
+    for (let x = 0; x < mapWidth; x++) {
+      const tile = map[y][x];
+      drawTile(x, y, tile.type);
+    }
+  }
+
+  // Fog of War Layer
+  if (fogEnabled) {
+    drawFog();
+  }
 }
 
-// ======= Start Game ======= //
-// Map is generated when "Start New Game" is clicked via splash screen
+function drawTile(x, y, type) {
+  const emojis = {
+    empty: "·",
+    planet: "🌍",
+    station: "🏭",
+    frigate: "🚀"
+  };
+
+  ctx.font = `${tileSize - 10}px monospace`;
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillStyle = "red";
+
+  ctx.fillText(emojis[type] || "·", x * tileSize + tileSize / 2, y * tileSize + tileSize / 2);
+}
+
+function drawFog() {
+  const shipPos = findShipPosition();
+  if (!shipPos) return;
+
+  for (let y = 0; y < mapHeight; y++) {
+    for (let x = 0; x < mapWidth; x++) {
+      const dx = x - shipPos.x;
+      const dy = y - shipPos.y;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      if (dist > visibleRadius) {
+        ctx.fillStyle = "rgba(0, 0, 0, 0.6)";
+        ctx.fillRect(x * tileSize, y * tileSize, tileSize, tileSize);
+      }
+    }
+  }
+}
+
+// ==============================
+// GAME LOGIC
+// ==============================
+function handleCanvasClick(e) {
+  const rect = canvas.getBoundingClientRect();
+  const x = Math.floor((e.clientX - rect.left) / tileSize);
+  const y = Math.floor((e.clientY - rect.top) / tileSize);
+
+  const clickedTile = map[y]?.[x];
+  if (!clickedTile) return;
+
+  if (clickedTile.type === "frigate") {
+    selectedShip = { x, y };
+  } else if (selectedShip && clickedTile.type === "empty") {
+    tryMoveShip(selectedShip.x, selectedShip.y, x, y);
+  }
+  draw();
+}
+
+function tryMoveShip(fromX, fromY, toX, toY) {
+  if (hasMovedThisTurn) return;
+
+  const dx = Math.abs(toX - fromX);
+  const dy = Math.abs(toY - fromY);
+  if (dx <= 1 && dy <= 1 && map[toY][toX].type === "empty") {
+    map[toY][toX].type = "frigate";
+    map[fromY][fromX].type = "empty";
+    hasMovedThisTurn = true;
+  }
+}
+
+function findShipPosition() {
+  for (let y = 0; y < mapHeight; y++) {
+    for (let x = 0; x < mapWidth; x++) {
+      if (map[y][x].type === "frigate") return { x, y };
+    }
+  }
+  return null;
+}
+
+function endTurn() {
+  hasMovedThisTurn = false;
+  generateResources();
+  draw();
+}
+
+function generateResources() {
+  metal += 5;
+  energy += 2;
+  population += 1;
+  document.getElementById("metal").textContent = metal;
+  document.getElementById("energy").textContent = energy;
+  document.getElementById("population").textContent = population;
+}
