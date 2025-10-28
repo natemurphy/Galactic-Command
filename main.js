@@ -2,6 +2,7 @@ import { initGameState } from './gameState.js';
 import { generateMap, renderMap, toggleFog } from './mapRenderer.js';
 
 let gameState = initGameState();
+let currentTurn = 'player'; // tracks whose turn it is
 
 let selectedShip = null;
 
@@ -85,5 +86,6 @@ canvas.addEventListener("click", e => {
 
   renderMap(gameState, selectedShip);
 });
+
 
 
