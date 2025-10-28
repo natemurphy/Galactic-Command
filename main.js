@@ -38,46 +38,49 @@ document.getElementById("end-turn").addEventListener("click", () => {
 // --- Ship selection and movement ---
 const canvas = document.getElementById("game-canvas");
 
+// --- Map click handler ---
 canvas.addEventListener("click", e => {
-  if (currentTurn !== 'player') return;
+  if (!gameState || currentTurn !== "player") return;
 
-  const { x, y } = tileFromMouse(e);
+  const rect = canvas.getBoundingClientRect();
+  const mx = e.clientX - rect.left;
+  const my = e.clientY - rect.top;
+  const TILE_SIZE = Math.floor(canvas.clientHeight / gameState.height);
+  const x = Math.floor(mx / TILE_SIZE);
+  const y = Math.floor(my / TILE_SIZE);
+
   const clickedTile = gameState.map[y][x];
+  const clickedObj = clickedTile.objectData;
 
-  // If a ship is selected and click is a valid move
-  if (selectedShip && (!clickedTile.object || clickedTile.object === "empty")) {
+  if (selectedShip) {
+    // Try to move
     const dx = Math.abs(x - selectedShip.x);
     const dy = Math.abs(y - selectedShip.y);
 
-    if (dx <= selectedShip.stats.moveRange && dy <= selectedShip.stats.moveRange) {
+    if ((dx + dy <= selectedShip.stats.moveRange) && !clickedTile.object) {
       // Remove ship from old tile
       const oldTile = gameState.map[selectedShip.y][selectedShip.x];
-      oldTile.object = "empty";
+      oldTile.object = null;
       oldTile.objectData = null;
 
-      // Move ship to new tile
-      clickedTile.object = "frigate";
-      clickedTile.objectData = selectedShip;
-      clickedTile.explored = true;
-
-      // Update ship data
+      // Update ship coordinates
       selectedShip.x = x;
       selectedShip.y = y;
       selectedShip.hasMoved = true;
 
-      // Deselect after moving
-      selectedShip = null;
+      // Place ship in new tile
+      clickedTile.object = "frigate";
+      clickedTile.objectData = selectedShip;
+      clickedTile.explored = true;
 
-      // Re-render
-      renderMap(gameState);
+      selectedShip = null; // deselect after move
+    } else {
+      // clicked invalid tile, deselect
+      selectedShip = null;
     }
-  } 
-  // Select ship if clicking on it
-  else if (clickedTile.objectData && clickedTile.objectData.type === "frigate" && clickedTile.objectData.owner === "player") {
-    selectedShip = clickedTile.objectData;
-  } 
-  else {
-    selectedShip = null;
+  } else if (clickedObj && clickedObj.type === "frigate" && clickedObj.owner === "player") {
+    // Select ship
+    selectedShip = clickedObj;
   }
 
   renderMap(gameState, selectedShip);
