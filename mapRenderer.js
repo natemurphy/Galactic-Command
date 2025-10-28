@@ -33,7 +33,7 @@ export function toggleFog(gameState) {
 export function renderMap(gameState) {
     const canvas = document.getElementById("game-canvas");
     const { map, width, height } = gameState;
-    const TILE_SIZE = Math.floor(window.innerHeight / height); // fit vertically
+    const TILE_SIZE = Math.floor(canvas.parentElement.clientHeight / height);
 
     canvas.width = TILE_SIZE * width;
     canvas.height = TILE_SIZE * height;
