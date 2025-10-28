@@ -1,60 +1,61 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Galactic Command</title>
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <title>Galactic Command</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <!-- Splash Screen -->
-  <div id="splash-screen" class="screen active">
-    <h1>Galactic Command</h1>
-    <button id="new-game">Start New Game</button>
-    <button id="continue-game">Continue</button>
-    <button id="settings-btn">Settings</button>
-  </div>
 
-  <!-- Settings Screen -->
-  <div id="settings-screen" class="screen hidden">
-    <h2>Settings</h2>
-    <label>
-      Music:
-      <input type="checkbox" id="music-toggle" checked>
-    </label>
-    <br>
-    <label>
-      Volume:
-      <input type="range" id="volume-slider" min="0" max="100" value="50">
-    </label>
-    <br>
-    <button id="settings-back">Back</button>
-  </div>
-
-  <!-- Game Screen -->
-  <div id="game-screen" class="screen hidden">
-    <!-- Left Toolbar -->
-    <div id="left-bar">
-      <button id="toggle-fog">Toggle Fog</button>
-      <button id="end-turn">End Turn</button>
-      <div id="turn-indicator">Turn: Player</div>
-      <div id="ship-info"></div>
+    <!-- Splash Screen -->
+    <div id="splash-screen" class="screen">
+        <h1>Galactic Command</h1>
+        <button id="new-game">Start New Game</button>
+        <button id="load-game">Continue</button>
+        <button id="settings-btn">Settings</button>
     </div>
 
-    <!-- Map Area -->
-    <div id="map-wrapper">
-      <canvas id="game-canvas"></canvas>
+    <!-- Settings Screen -->
+    <div id="settings-screen" class="screen" style="display:none">
+        <h2>Settings</h2>
+        <label>
+            Music:
+            <input type="checkbox" id="music-toggle" checked>
+        </label>
+        <br><br>
+        <label>
+            Volume:
+            <input type="range" id="music-volume" min="0" max="100" value="50">
+        </label>
+        <br><br>
+        <button id="settings-back">Back</button>
     </div>
 
-    <!-- Right Panel -->
-    <div id="right-bar">
-      <h3>Resources</h3>
-      <p>Metal: <span id="metal">0</span></p>
-      <p>Energy: <span id="energy">0</span></p>
-      <p>Population: <span id="population">0</span></p>
-    </div>
-  </div>
+    <!-- Game Layout -->
+    <div id="game-container" class="screen" style="display:none">
+        <!-- Left Toolbar -->
+        <div id="left-bar">
+            <h3>Controls</h3>
+            <button id="toggle-fog">Toggle Fog</button>
+            <button id="end-turn">End Turn</button>
+            <div id="turn-indicator">Turn: Player</div>
+            <div id="ship-info"></div>
+        </div>
 
-  <script src="main.js"></script>
+        <!-- Map Area -->
+        <div id="map-area">
+            <canvas id="game-canvas"></canvas>
+        </div>
+
+        <!-- Right Stats/Resources -->
+        <div id="right-bar">
+            <h3>Resources</h3>
+            <p>Metal: <span id="metal-count">0</span></p>
+            <p>Energy: <span id="energy-count">0</span></p>
+            <p>Population: <span id="population-count">0</span></p>
+        </div>
+    </div>
+
+    <script src="main.js"></script>
 </body>
 </html>
