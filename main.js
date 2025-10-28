@@ -183,31 +183,24 @@ document.getElementById('settings-back').addEventListener('click',()=>{
     splashScreen.style.display='flex';
 });
 
-// ===== Resize canvas to fill map area as big square =====
 function resizeCanvas() {
     const mapArea = document.getElementById('map-area');
-    
-    // Available width/height after accounting for sidebars and padding
-    const availableWidth = mapArea.clientWidth;
-    const availableHeight = mapArea.clientHeight;
 
-    // Make it square: use the smaller of width/height
-    const size = Math.min(availableWidth, availableHeight);
+    // Get available width/height inside the map area
+    const width = mapArea.clientWidth;
+    const height = mapArea.clientHeight;
+
+    // Make the canvas square
+    const size = Math.min(width, height);
 
     canvas.width = size;
     canvas.height = size;
 
-    draw(); // redraw after resize
+    draw();
 }
 
-// Resize on window resize
-window.addEventListener('resize', () => {
-    resizeCanvas();
-});
-
-// Resize initially when game starts
-window.addEventListener('load', () => {
-    resizeCanvas();
-});
+// Resize on window resize and initial load
+window.addEventListener('resize', resizeCanvas);
+window.addEventListener('load', resizeCanvas);
 
 
