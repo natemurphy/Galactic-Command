@@ -10,7 +10,7 @@ const ICONS = {
 
 let fogHidden = false;
 
-// Generate map objects randomly (planets, asteroids, enemies, empty tiles)
+// --- Exported functions --- //
 export function generateMap(gameState) {
   const { map, width, height } = gameState;
 
@@ -27,12 +27,10 @@ export function generateMap(gameState) {
   }
 }
 
-// Toggle fog of war on/off
 export function toggleFog() {
   fogHidden = !fogHidden;
 }
 
-// Render the map and optionally highlight a selected ship
 export function renderMap(gameState, selectedShip = null) {
   const canvas = document.getElementById("game-canvas");
   const { map, width, height } = gameState;
@@ -47,51 +45,37 @@ export function renderMap(gameState, selectedShip = null) {
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
 
-  // Draw all tiles
   for (let y = 0; y < height; y++) {
     for (let x = 0; x < width; x++) {
       const tile = map[y][x];
       let icon;
-
       if (fogHidden || tile.explored) {
         icon = ICONS[tile.object] || ICONS.empty;
       } else {
         icon = ICONS.unexplored;
       }
-
       ctx.fillText(icon, x * TILE_SIZE + TILE_SIZE / 2, y * TILE_SIZE + TILE_SIZE / 2);
     }
   }
 
-  // Highlight selected ship and its move range
+  // Highlight selected ship and move range
   if (selectedShip) {
     ctx.strokeStyle = "yellow";
     ctx.lineWidth = 2;
+    ctx.strokeRect(selectedShip.x * TILE_SIZE, selectedShip.y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
 
-    // Highlight selected ship tile
-    ctx.strokeRect(
-      selectedShip.x * TILE_SIZE,
-      selectedShip.y * TILE_SIZE,
-      TILE_SIZE,
-      TILE_SIZE
-    );
-
-    // Highlight valid move tiles
+    ctx.strokeStyle = "cyan";
     const directions = [
       { dx: 1, dy: 0 },
       { dx: -1, dy: 0 },
       { dx: 0, dy: 1 },
       { dx: 0, dy: -1 }
     ];
-
-    ctx.strokeStyle = "cyan";
     for (const dir of directions) {
       const tx = selectedShip.x + dir.dx;
       const ty = selectedShip.y + dir.dy;
-
       if (tx >= 0 && tx < width && ty >= 0 && ty < height) {
         const targetTile = map[ty][tx];
-        // Only highlight if no object is on the tile
         if (!targetTile.object || targetTile.object === "empty") {
           ctx.strokeRect(tx * TILE_SIZE, ty * TILE_SIZE, TILE_SIZE, TILE_SIZE);
         }
