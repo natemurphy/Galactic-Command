@@ -3,14 +3,13 @@ const canvas = document.getElementById('game-canvas');
 const ctx = canvas.getContext('2d');
 const tileSize = 40;
 
+// ======= Game State =======
 let cols = 0;
 let rows = 0;
-
-// ======= Game State =======
 let map = [];
 let objects = [];
 let selectedObject = null;
-let currentTurn = 'player'; // 'player' or 'enemy'
+let currentTurn = 'player';
 let fogEnabled = true;
 
 // ======= DOM Elements =======
@@ -20,6 +19,7 @@ const gameScreen = document.getElementById('game-container');
 const shipInfo = document.getElementById('ship-info');
 const turnIndicator = document.getElementById('turn-indicator');
 
+// ======= Emoji Icons =======
 const ICONS = {
     planet: '🪐',
     station: '🏭',
@@ -59,6 +59,7 @@ function tileFromMouse(e) {
 
 // ======= Map & Object Generation =======
 function generateMap() {
+    // Calculate number of columns/rows based on map area
     const mapArea = document.getElementById('map-area');
     canvas.width = mapArea.clientWidth;
     canvas.height = mapArea.clientHeight;
@@ -66,7 +67,7 @@ function generateMap() {
     cols = Math.floor(canvas.width / tileSize);
     rows = Math.floor(canvas.height / tileSize);
 
-    // generate empty map
+    // Generate empty map
     map = [];
     for (let y = 0; y < rows; y++) {
         const row = [];
@@ -82,13 +83,13 @@ function generateMap() {
     const earth = { id:1, type:'planet', owner:'player', x:2, y:2 };
     objects.push(earth);
 
-    // Station
+    // Station next to Earth
     const stationTile = findEmptyAdjacentTile(earth.x, earth.y);
     if(stationTile) {
         objects.push({id:2,type:'station',owner:'player',x:stationTile.x,y:stationTile.y,hp:500});
     }
 
-    // Frigate
+    // Starter frigate
     let frigX = 3, frigY = 3;
     if(stationTile && !isOccupied(stationTile.x, stationTile.y + 1)) {
         frigX = stationTile.x;
@@ -127,7 +128,7 @@ function draw() {
         }
     }
 
-    // draw movement range
+    // Draw movement range
     if(selectedObject && !selectedObject.hasMoved){
         ctx.fillStyle = 'rgba(0,255,255,0.3)';
         ctx.globalAlpha = 1;
@@ -165,6 +166,7 @@ canvas.addEventListener('click', e=>{
         selectedObject=clicked;
         shipInfo.innerText = `Move: ${selectedObject.stats.moveRange}`;
     } else { selectedObject=null; shipInfo.innerText=''; }
+
     draw();
 });
 
